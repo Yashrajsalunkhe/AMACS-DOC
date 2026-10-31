@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AMACS / Field Command — Multi-Agent Coordination Dashboard</title>
+  <meta name="description" content="Interactive demonstration of the AMACS (Adaptive Multi-Agent Coordination System) Python package. Compare single-agent vs multi-agent accuracy, precision, recall, F1 score, and visualize the communication bus." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">A</span><div><strong>AMACS</strong><small>FIELD COMMAND v2</small></div></div>
+      <div class="status"><a class="docs-link" href="/docs.html">DOCS ↗</a><span class="status-divider"></span><span class="pulse"></span><span id="providerLabel">OFFLINE STUB</span><span class="status-divider"></span><span>RUN MEMORY ON</span></div>
+    </header>
+
+    <!-- HERO -->
+    <section class="intro">
+      <div>
+        <p class="eyebrow">Adaptive Multi-Agent Coordination System</p>
+        <h1>One incident.<br /><em>Many minds.</em></h1>
+        <p class="lede">Watch a city heatwave response move from a shared brief to coordinated action, with every agent message and adaptation left visible. Compare all quality metrics <strong>with</strong> and <strong>without</strong> the AMACS package.</p>
+      </div>
+      <div class="intro-aside">
+        <span class="aside-label">LIVE DEMONSTRATION</span>
+        <p>Baseline vs. coordinated response</p>
+        <div class="signal-line"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works">
+      <div class="section-heading"><div><p class="eyebrow">ARCHITECTURE</p><h2>How AMACS works.</h2></div></div>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <span class="arch-num">01</span>
+          <h3>Without AMACS</h3>
+          <p>A single LLM call processes the entire prompt. No task decomposition, no specialist roles, no shared memory between sub-tasks. The model must handle everything in one context window.</p>
+          <div class="arch-diagram">
+            <span class="arch-node arch-user">User</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-node arch-llm">Single LLM</span>
+            <span class="arch-arrow">→</span>
+            <span class="arch-node arch-output">Output</span>
+          </div>
+        </div>
+        <div class="arch-card arch-card-highlight">
+          <span class="arch-num">02</span>
+          <h3>With AMACS</h3>
+          <p>The prompt is decomposed into dependency-aware sub-tasks. Specialist agents execute in coordinated waves, share results via a communication bus, and a synthesizer merges all outputs into a comprehensive plan.</p>
+          <div class="arch-diagram arch-diagram-multi">
+            <div class="arch-row"><span class="arch-node arch-user">User</span><span class="arch-arrow">→</span><span class="arch-node arch-orch">Orchestrator</span></div>
+            <div class="arch-fan">
+              <span class="arch-arrow-down">↓</span>
+              <span class="arch-arrow-down">↓</span>
+              <span class="arch-arrow-down">↓</span>
+            </div>
+            <div class="arch-row">
+              <span class="arch-node arch-agent">Agent 1</span>
+              <span class="arch-node arch-agent">Agent 2</span>
+              <span class="arch-node arch-agent">Agent 3</span>
+            </div>
+            <div class="arch-fan"><span class="arch-arrow-down">↓</span></div>
+            <div class="arch-row"><span class="arch-node arch-synth">Synthesizer</span><span class="arch-arrow">→</span><span class="arch-node arch-output">Final Plan</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROMPT -->
+    <section class="brief-panel">
+      <div class="panel-kicker"><span>01</span> INCIDENT BRIEF</div>
+      <label class="prompt-label" for="prompt">YOUR PROMPT</label>
+      <textarea id="prompt" aria-label="Prompt for the agent team" placeholder="Describe the problem you want the agent team to solve...">A severe heatwave is forecast for a mid-sized city in 72 hours. Design an actionable public-health response for the first 48 hours, balancing speed, equity, logistics, and clear public communication.</textarea>
+      <div class="brief-footer"><span class="hint">The same brief is sent to both paths for a fair comparison.</span><button id="runButton" class="run-button"><span>RUN COMPARISON</span><span class="arrow">↗</span></button></div>
+    </section>
+
+    <section id="loading" class="loading hidden"><span class="loader"></span> Orchestrating the response across dependency-aware waves...</section>
+    <section id="error" class="error hidden"></section>
+
+    <!-- RESULTS -->
+    <section id="results" class="hidden">
+      <div class="section-heading"><div><p class="eyebrow">THE CONTROL ROOM</p><h2>Coordination, exposed.</h2></div><span id="runMeta" class="run-meta"></span></div>
+
+      <!-- MAIN IMPROVEMENT BANNER -->
+      <div class="comparison-result"><span>MEASURED CHANGE</span><strong id="improvementScore">—</strong><small>accuracy coverage after specialist synthesis</small></div>
+
+      <!-- METRICS COMPARISON TABLE -->
+      <div class="metrics-section">
+        <div class="section-heading"><div><p class="eyebrow">PERFORMANCE METRICS</p><h2>Side-by-side comparison.</h2></div></div>
+        <div class="metrics-table-wrap">
+          <table class="metrics-table" id="metricsTable">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th><span class="dot gray"></span> Without AMACS</th>
+                <th><span class="dot green"></span> With AMACS</th>
+                <th>Delta</th>
+              </tr>
+            </thead>
+            <tbody id="metricsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SCORE CARDS -->
+      <div class="score-grid">
+        <article class="score-card baseline-card">
+          <div class="card-label"><span class="dot gray"></span> WITHOUT AMACS <span id="baselineProvider" class="provider-pill"></span></div>
+          <div class="score-row"><strong id="baselineScore">—</strong><span>accuracy<br />coverage</span></div>
+          <div class="meter"><i id="baselineMeter"></i></div>
+          <p>One model. One context. No shared memory or adaptive recovery.</p>
+          <div id="baselineMetricsMini" class="mini-metrics"></div>
+        </article>
+        <article class="score-card amacs-card">
+          <div class="card-label"><span class="dot green"></span> WITH AMACS <span class="provider-pill">ADAPTIVE</span></div>
+          <div class="score-row"><strong id="amacsScore">—</strong><span>accuracy<br />coverage</span></div>
+          <div class="meter green-meter"><i id="amacsMeter"></i></div>
+          <p id="amacsSummary">Multiple role agents, dependency-aware scheduling, and feedback between waves.</p>
+          <div id="amacsMetricsMini" class="mini-metrics"></div>
+        </article>
+      </div>
+
+      <!-- COVERAGE HEATMAP -->
+      <div class="coverage-section">
+        <div class="panel-title"><span>RUBRIC COVERAGE HEATMAP</span><span>6 SIGNALS</span></div>
+        <div id="coverageHeatmap" class="coverage-heatmap"></div>
+      </div>
+
+      <!-- DASHBOARD GRID -->
+      <div class="dashboard-grid">
+        <article class="data-panel wide"><div class="panel-title"><span>ORCHESTRATION MAP</span><span id="taskCount"></span></div><div id="taskMap" class="task-map"></div></article>
+        <article class="data-panel"><div class="panel-title"><span>ADAPTIVE MOVES</span><span id="adaptCount"></span></div><div id="adaptations" class="event-list"></div></article>
+        <article class="data-panel wide"><div class="panel-title"><span>AGENT TEAM / WHO DOES WHAT</span><span id="teamCount"></span></div><div id="agentTeam" class="agent-team"></div></article>
+        <article class="data-panel wide"><div class="panel-title"><span>AGENT OUTPUTS</span><span id="agentCount"></span></div><div id="agents" class="agent-list"></div></article>
+        <article class="data-panel"><div class="panel-title"><span>ACCURACY RUBRIC</span><span>14 SIGNALS</span></div><div id="rubric" class="rubric-list"></div></article>
+        <!-- COMMUNICATION BUS — full width animated flow -->
+        <article class="data-panel full-width comm-bus-panel">
+          <div class="panel-title"><span>COMMUNICATION BUS</span><span id="messageCount"></span></div>
+          <div id="commBus" class="comm-bus-container"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="history-section"><div class="section-heading"><div><p class="eyebrow">PERSISTENT MEMORY</p><h2>Previous runs.</h2></div><span class="run-meta">data/runs.json</span></div><div id="history" class="history-list"></div></section>
+    <footer><span>AMACS 0.2.0 / educational command center</span><a href="https://github.com/Aditya-padale/amacs" target="_blank">VIEW SOURCE ↗</a></footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

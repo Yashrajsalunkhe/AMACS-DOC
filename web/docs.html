@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AMACS / Documentation</title>
+  <meta name="description" content="AMACS Field Command documentation: architecture, configuration, fallback behavior, metrics, and API routes." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell docs-shell">
+    <header class="topbar">
+      <a class="brand docs-brand" href="/">
+        <span class="brand-mark">A</span>
+        <span><strong>AMACS</strong><small>FIELD COMMAND v2</small></span>
+      </a>
+      <nav class="docs-nav" aria-label="Documentation navigation">
+        <a href="/">DASHBOARD</a>
+        <a class="docs-nav-active" href="/docs.html">DOCUMENTATION</a>
+      </nav>
+    </header>
+
+    <section class="docs-hero">
+      <p class="eyebrow">AMACS / PROJECT DOCUMENTATION</p>
+      <h1>Coordination you<br /><em>can inspect.</em></h1>
+      <p class="docs-lede">AMACS is an adaptive multi-agent coordination system. It decomposes a complex brief, schedules specialist work, shares intermediate results, and synthesizes one traceable response.</p>
+      <div class="docs-meta"><span>VERSION 0.2.0</span><span>PYTHON + STANDARD LIBRARY WEB UI</span><a href="https://github.com/Aditya-padale/amacs" target="_blank" rel="noreferrer">UPSTREAM PROJECT ↗</a></div>
+    </section>
+
+    <div class="docs-layout">
+      <aside class="docs-sidebar">
+        <span class="docs-sidebar-label">ON THIS PAGE</span>
+        <a href="#overview">Overview</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#configuration">Configuration</a>
+        <a href="#fallbacks">Fallbacks</a>
+        <a href="#metrics">Metrics</a>
+        <a href="#api">API surface</a>
+        <a href="#run">Run locally</a>
+      </aside>
+
+      <article class="docs-content">
+        <section id="overview" class="docs-section">
+          <p class="eyebrow">01 / OVERVIEW</p>
+          <h2>What AMACS does</h2>
+          <p>AMACS turns one broad prompt into a coordinated execution plan. The orchestrator owns decomposition and scheduling, specialists own focused sub-tasks, shared memory carries context between steps, and the synthesizer produces the final response.</p>
+          <div class="docs-callout"><strong>Core idea</strong><span>Make multi-agent work observable: tasks, dependencies, messages, adaptations, outputs, and quality signals are all returned as structured data.</span></div>
+        </section>
+
+        <section id="architecture" class="docs-section">
+          <p class="eyebrow">02 / ARCHITECTURE</p>
+          <h2>From brief to final plan</h2>
+          <div class="docs-flow">
+            <div><b>01</b><strong>Input</strong><span>User brief enters the orchestrator.</span></div>
+            <div><b>02</b><strong>Decompose</strong><span>Work becomes dependency-aware tasks.</span></div>
+            <div><b>03</b><strong>Execute</strong><span>Specialists run in coordinated waves.</span></div>
+            <div><b>04</b><strong>Share</strong><span>Results travel through shared memory.</span></div>
+            <div><b>05</b><strong>Synthesize</strong><span>One final plan is merged and returned.</span></div>
+          </div>
+          <p class="docs-note">The dashboard communication bus renders this as a graph. Animated particles represent message events; edge colors identify the phase of each event.</p>
+        </section>
+
+        <section id="configuration" class="docs-section">
+          <p class="eyebrow">03 / CONFIGURATION</p>
+          <h2>Provider setup</h2>
+          <p>Offline mode is available without credentials and uses deterministic specialist responses for demonstrations and local UI development. Live AMACS orchestration requires both settings below.</p>
+          <pre><code>GROQ_API_KEY=your-key
+AMACS_ENABLE_LIVE=true
+GROQ_MODEL=openai/gpt-oss-20b
+PORT=8787</code></pre>
+          <div class="docs-table-wrap"><table class="docs-table"><thead><tr><th>Setting</th><th>Purpose</th><th>Default</th></tr></thead><tbody>
+            <tr><td><code>GROQ_API_KEY</code></td><td>Enables the Groq provider.</td><td>unset</td></tr>
+            <tr><td><code>AMACS_ENABLE_LIVE</code></td><td>Allows the coordinated live path.</td><td>disabled</td></tr>
+            <tr><td><code>GROQ_MODEL</code></td><td>Selects the live model.</td><td><code>openai/gpt-oss-20b</code></td></tr>
+            <tr><td><code>PORT</code></td><td>HTTP server port.</td><td><code>8787</code></td></tr>
+          </tbody></table></div>
+        </section>
+
+        <section id="fallbacks" class="docs-section">
+          <p class="eyebrow">04 / RECOVERY</p>
+          <h2>Understanding fallback</h2>
+          <p>Fallback is a controlled recovery path, not a second hidden provider. When live orchestration is disabled, the app deliberately uses offline specialists. When a live AMACS call raises an exception, the same offline path is used and the exception is recorded in the adaptation event.</p>
+          <div class="fallback-grid"><div><strong>LIVE PROVIDER DISABLED</strong><span>Check <code>AMACS_ENABLE_LIVE</code> and the API key. The run is labeled offline and explains that no live call was made.</span></div><div><strong>PROVIDER FAILURE</strong><span>Inspect the recorded exception, provider credentials, model name, rate limits, and network access. The response remains available through offline specialists.</span></div></div>
+        </section>
+
+        <section id="metrics" class="docs-section">
+          <p class="eyebrow">05 / EVALUATION</p>
+          <h2>Metrics and traces</h2>
+          <div class="docs-metric-grid"><div><strong>Accuracy</strong><span>Rubric signals covered by the response.</span></div><div><strong>Precision</strong><span>How focused the matched claims are.</span></div><div><strong>Recall</strong><span>Share of the full rubric discovered.</span></div><div><strong>F1 score</strong><span>Balance of precision and recall.</span></div></div>
+          <p class="docs-note">The demo compares a constrained direct baseline with the coordinated result against the same 14-signal public-health rubric.</p>
+        </section>
+
+        <section id="api" class="docs-section">
+          <p class="eyebrow">06 / API SURFACE</p>
+          <h2>HTTP endpoints</h2>
+          <div class="endpoint"><span class="method">GET</span><code>/api/history</code><p>Returns the most recent persisted comparison runs.</p></div>
+          <div class="endpoint"><span class="method method-post">POST</span><code>/api/run</code><p>Runs a comparison. Send <code>{"prompt":"..."}</code>; the response includes baseline, AMACS output, tasks, communication, adaptations, metrics, and provider state.</p></div>
+          <div class="endpoint"><span class="method">GET</span><code>/</code><p>Serves the Field Command dashboard.</p></div>
+        </section>
+
+        <section id="run" class="docs-section docs-last">
+          <p class="eyebrow">07 / QUICK START</p>
+          <h2>Run the demo</h2>
+          <pre><code># AMACS is published on PyPI; no repository clone is needed.
+python -m pip install amacs
+python -m pip install groq
+cp .env.example .env
+python server.py</code></pre>
+          <p>AMACS is installed directly from PyPI. Open <a href="/">http://localhost:8787</a> and submit an incident brief. Start offline first; add provider credentials only when you want to exercise live orchestration.</p>
+        </section>
+      </article>
+    </div>
+
+    <footer><span>AMACS 0.2.0 / documentation</span><a href="/">BACK TO DASHBOARD ↗</a></footer>
+  </main>
+</body>
+</html>
